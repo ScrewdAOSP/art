@@ -1580,9 +1580,10 @@ static int dex2oat(int argc, char** argv) {
     oss.str("");  // Reset.
     oss << kRuntimeISA;
     key_value_store->Put(OatHeader::kDex2OatHostKey, oss.str());
-	if (image && original_oat_checksum != 0) {
+	key_value_store->Put(OatHeader::kXposedOatVersionKey, OatHeader::kXposedOatCurrentVersion);
+    if (image && original_oat_checksum != 0) {
     key_value_store->Put(OatHeader::kOriginalOatChecksumKey, StringPrintf("0x%08x", original_oat_checksum));
-  	}
+    }
     key_value_store->Put(OatHeader::kPicKey, compile_pic ? "true" : "false");
   }
 
