@@ -37,6 +37,12 @@ class ScopedObjectAccessAlreadyRunnable;
 class StringPiece;
 class ShadowFrame;
 
+struct XposedHookInfo {
+  jobject reflectedMethod;
+  jobject additionalInfo;
+  mirror::ArtMethod* originalMethod;
+};
+
 namespace mirror {
 
 typedef void (EntryPointFromInterpreter)(Thread* self, MethodHelper& mh,
@@ -321,7 +327,8 @@ class MANAGED ArtMethod FINAL : public Object {
   template <VerifyObjectFlags kVerifyFlags = kDefaultVerifyFlags>
   void SetEntryPointFromQuickCompiledCode(const void* entry_point_from_quick_compiled_code)
       SHARED_LOCKS_REQUIRED(Locks::mutator_lock_) {
-    CheckObjectSizeEqualsMirrorSize();
+    DCHECK(!IsXposedHookedMethod());
+	CheckObjectSizeEqualsMirrorSize();
     SetEntryPointFromQuickCompiledCodePtrSize(entry_point_from_quick_compiled_code,
                                               sizeof(void*));
   }
@@ -557,6 +564,22 @@ class MANAGED ArtMethod FINAL : public Object {
   static size_t InstanceSize(size_t pointer_size) {
     return SizeWithoutPointerFields(pointer_size) +
         (sizeof(PtrSizedFields) / sizeof(void*)) * pointer_size;
+  }
+  // Xposed
+  bool IsXposedHookedMethod() SHARED_LOCKS_REQUIRED(Locks::mutator_lock_) {
+    return (GetAccessFlags() & kAccXposedHookedMethod) != 0;
+  }
+
+  bool IsXposedOriginalMethod() SHARED_LOCKS_REQUIRED(Locks::mutator_lock_) {
+      return (GetAccessFlags() & kAccXposedOriginalMethod) != 0;
+  }
+
+  XposedHookInfo* GetXposedHookInfo() SHARED_LOCKS_REQUIRED(Locks::mutator_lock_) {
+    return (XposedHookInfo*) GetNativeMethod();
+  }
+
+  ArtMethod* GetXposedOriginalMethod() SHARED_LOCKS_REQUIRED(Locks::mutator_lock_) {
+    return GetXposedHookInfo()->originalMethod;
   }
 
  protected:
