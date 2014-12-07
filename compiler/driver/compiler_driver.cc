@@ -1190,6 +1190,10 @@ void CompilerDriver::GetCodeAndMethodForDirectCall(InvokeType* type, InvokeType 
   }
   mirror::Class* declaring_class = method->GetDeclaringClass();
   bool method_code_in_boot = (declaring_class->GetClassLoader() == nullptr);
+  
+  // Direct branching to the method's code offset means that Xposed hooks are not considered
+  // So we always need to go through the dex cache/ArtMethod
+  use_dex_cache = true;
   if (!use_dex_cache) {
     if (!method_code_in_boot) {
       use_dex_cache = true;
