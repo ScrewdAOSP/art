@@ -405,11 +405,11 @@ void ArtMethod::EnableXposedHook(JNIEnv* env, jobject additional_info) {
       env->NewGlobalRef(soa.AddLocalReference<jobject>(backup_method)));
 
   // Save extra information in a separate structure, stored instead of the native method
-  XposedHookInfo* hookInfo = (XposedHookInfo*) calloc(1, sizeof(XposedHookInfo));
+  XposedHookInfo* hookInfo = reinterpret_cast<XposedHookInfo*>(calloc(1, sizeof(XposedHookInfo)));
   hookInfo->reflectedMethod = env->NewGlobalRef(reflect_method);
   hookInfo->additionalInfo = env->NewGlobalRef(additional_info);
   hookInfo->originalMethod = backup_method;
-  SetNativeMethod((uint8_t*) hookInfo);
+  SetEntryPointFromJni(reinterpret_cast<uint8_t*>(hookInfo));
 
   SetEntryPointFromQuickCompiledCode(GetQuickProxyInvokeHandler());
   SetEntryPointFromInterpreter(artInterpreterToCompiledCodeBridge);
