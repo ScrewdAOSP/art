@@ -530,7 +530,6 @@ ImageSpace* ImageSpace::Create(const char* image_location,
   // TODO: Consider relocating in the rare case that the system image is already prepared for Xposed
 
   if (image_filename != nullptr) {
-
 #if 0
   if (found_image) {
     const std::string* image_filename;
@@ -884,7 +883,6 @@ void ImageSpace::Dump(std::ostream& os) const {
       << ",size=" << PrettySize(Size())
       << ",name=\"" << GetName() << "\"]";
 }
-
+}  // namespace space
 }  // namespace space
 }  // namespace gc
-}  // namespace art
