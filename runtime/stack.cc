@@ -112,9 +112,6 @@ uint32_t StackVisitor::GetDexPc(bool abort_on_failure) const {
   }
 }
 
-extern "C" mirror::Object* artQuickGetProxyThisObject(StackReference<mirror::ArtMethod>* sp)
-    SHARED_LOCKS_REQUIRED(Locks::mutator_lock_);
-
 mirror::Object* StackVisitor::GetThisObject() const {
   mirror::ArtMethod* m = GetMethod();
   if (m->IsStatic()) {
@@ -124,12 +121,6 @@ mirror::Object* StackVisitor::GetThisObject() const {
       HandleScope* hs = reinterpret_cast<HandleScope*>(
           reinterpret_cast<char*>(cur_quick_frame_) + m->GetHandleScopeOffsetInBytes().SizeValue());
       return hs->GetReference(0);
-    } else {
-      return cur_shadow_frame_->GetVRegReference(0);
-    }
-  } else if (m->IsProxyMethod()) {
-    if (cur_quick_frame_ != nullptr) {
-      return artQuickGetProxyThisObject(cur_quick_frame_);
     } else {
       return cur_shadow_frame_->GetVRegReference(0);
     }
