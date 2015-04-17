@@ -102,10 +102,6 @@ class DexCompilationUnit {
     return verified_method_;
   }
 
-  void ClearVerifiedMethod() {
-    verified_method_ = nullptr;
-  }
-
   const std::string& GetSymbol();
 
  private:
@@ -121,7 +117,7 @@ class DexCompilationUnit {
   const uint16_t class_def_idx_;
   const uint32_t dex_method_idx_;
   const uint32_t access_flags_;
-  const VerifiedMethod* verified_method_;
+  const VerifiedMethod* const verified_method_;
 
   std::string symbol_;
 };
