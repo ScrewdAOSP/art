@@ -507,7 +507,7 @@ class Dex2Oat {
   }
 
   void SetRuntimeRecompiling(bool new_value) {
-    runtime_->SetRecompiling(true);
+    runtime_->SetRecompiling(new_value);
   }
 
  private:
@@ -611,7 +611,7 @@ static size_t OpenDexFiles(const std::vector<const char*>& dex_filenames,
       continue;
     }
     if (EndsWith(dex_filename, ".oat") || EndsWith(dex_filename, ".odex")) {
-        const OatFile* oat_file = OatFile::Open(dex_filename, dex_location, nullptr, nullptr, false, &error_msg);
+      const OatFile* oat_file = OatFile::Open(dex_filename, dex_location, nullptr, nullptr, false, &error_msg);
       if (oat_file == nullptr) {
         LOG(WARNING) << "Failed to open oat file from '" << dex_filename << "': " << error_msg;
         ++failure_count;
