@@ -103,10 +103,6 @@ size_t ArtMethod::NumArgRegisters(const StringPiece& shorty) {
   return num_registers;
 }
 
-bool ArtMethod::IsProxyMethod(bool ignore_xposed) {
-  return GetDeclaringClass()->IsProxyClass() || (!ignore_xposed && IsXposedHookedMethod());
-}
-
 ArtMethod* ArtMethod::FindOverriddenMethod() {
   if (IsStatic()) {
     return NULL;
@@ -413,8 +409,6 @@ void ArtMethod::EnableXposedHook(JNIEnv* env, jobject additional_info) {
   hookInfo->additionalInfo = env->NewGlobalRef(additional_info);
   hookInfo->originalMethod = backup_method;
   SetEntryPointFromJni(reinterpret_cast<uint8_t*>(hookInfo));
-
-  SetNativeMethod(reinterpret_cast<uint8_t*>(hookInfo));
 
   SetEntryPointFromQuickCompiledCode(GetQuickProxyInvokeHandler());
   SetEntryPointFromInterpreter(artInterpreterToCompiledCodeBridge);

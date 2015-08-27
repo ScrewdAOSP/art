@@ -332,8 +332,6 @@ const DexFile* DexFile::OpenMemory(const byte* base,
                                    const OatFile* oat_file,
                                    std::string* error_msg) {
   CHECK_ALIGNED(base, 4);  // various dex file structures must be word aligned
-  std::unique_ptr<DexFile> dex_file(
-      new DexFile(base, size, location, location_checksum, mem_map, oat_file));
 
   if (UNLIKELY(LGAlmond::IsEncryptedDex(base, size))) {
     if ((mem_map->GetProtect() & PROT_WRITE) == 0) {
@@ -347,8 +345,8 @@ const DexFile* DexFile::OpenMemory(const byte* base,
     }
   }
 
-  std::unique_ptr<DexFile> dex_file(new DexFile(base, size, location, location_checksum, mem_map));
-
+  std::unique_ptr<DexFile> dex_file(
+      new DexFile(base, size, location, location_checksum, mem_map, oat_file));
   if (!dex_file->Init(error_msg)) {
     return nullptr;
   } else {

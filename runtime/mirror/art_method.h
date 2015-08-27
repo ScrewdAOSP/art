@@ -340,6 +340,7 @@ class MANAGED ArtMethod FINAL : public Object {
   ALWAYS_INLINE void SetEntryPointFromQuickCompiledCodePtrSize(
       const void* entry_point_from_quick_compiled_code, size_t pointer_size)
       SHARED_LOCKS_REQUIRED(Locks::mutator_lock_) {
+    DCHECK(!IsXposedHookedMethod());
     SetFieldPtrWithSize<false, true, kVerifyFlags>(
         EntryPointFromQuickCompiledCodeOffset(pointer_size), entry_point_from_quick_compiled_code,
         pointer_size);
@@ -555,6 +556,29 @@ class MANAGED ArtMethod FINAL : public Object {
 
   ALWAYS_INLINE ArtMethod* GetInterfaceMethodIfProxy() SHARED_LOCKS_REQUIRED(Locks::mutator_lock_);
 
+  // Xposed
+  bool IsXposedHookedMethod() SHARED_LOCKS_REQUIRED(Locks::mutator_lock_) {
+    return (GetAccessFlags() & kAccXposedHookedMethod) != 0;
+  }
+
+  bool IsXposedOriginalMethod() SHARED_LOCKS_REQUIRED(Locks::mutator_lock_) {
+      return (GetAccessFlags() & kAccXposedOriginalMethod) != 0;
+  }
+
+  void EnableXposedHook(JNIEnv* env, jobject additional_info) SHARED_LOCKS_REQUIRED(Locks::mutator_lock_);
+
+  const XposedHookInfo* GetXposedHookInfo() SHARED_LOCKS_REQUIRED(Locks::mutator_lock_) {
+    DCHECK(IsXposedHookedMethod());
+    return reinterpret_cast<const XposedHookInfo*>(GetEntryPointFromJni());
+  }
+
+  ArtMethod* GetXposedOriginalMethod() SHARED_LOCKS_REQUIRED(Locks::mutator_lock_) {
+    return GetXposedHookInfo()->originalMethod;
+  }
+
+  static jclass xposed_callback_class;
+  static jmethodID xposed_callback_method;
+
   static size_t SizeWithoutPointerFields(size_t pointer_size) {
     size_t total = sizeof(ArtMethod) - sizeof(PtrSizedFields);
 #ifdef ART_METHOD_HAS_PADDING_FIELD_ON_64_BIT
@@ -569,28 +593,6 @@ class MANAGED ArtMethod FINAL : public Object {
     return SizeWithoutPointerFields(pointer_size) +
         (sizeof(PtrSizedFields) / sizeof(void*)) * pointer_size;
   }
-  // Xposed
-  bool IsXposedHookedMethod() SHARED_LOCKS_REQUIRED(Locks::mutator_lock_) {
-    return (GetAccessFlags() & kAccXposedHookedMethod) != 0;
-  }
-
-  bool IsXposedOriginalMethod() SHARED_LOCKS_REQUIRED(Locks::mutator_lock_) {
-      return (GetAccessFlags() & kAccXposedOriginalMethod) != 0;
-  }
-
-  void EnableXposedHook(JNIEnv* env, jobject additional_info) SHARED_LOCKS_REQUIRED(Locks::mutator_lock_);
-
-  const XposedHookInfo* GetXposedHookInfo() SHARED_LOCKS_REQUIRED(Locks::mutator_lock_) {
-    DCHECK(IsXposedHookedMethod());
-    return reinterpret_cast<const XposedHookInfo*>(GetNativeMethod());
-  }
-
-  ArtMethod* GetXposedOriginalMethod() SHARED_LOCKS_REQUIRED(Locks::mutator_lock_) {
-    return GetXposedHookInfo()->originalMethod;
-  }
-
-  static jclass xposed_callback_class;
-  static jmethodID xposed_callback_method;
 
  protected:
   // Field order required by test "ValidateFieldOrderOfJavaCppUnionClasses".
