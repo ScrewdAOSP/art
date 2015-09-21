@@ -940,11 +940,11 @@ size_t CodeGeneratorMIPS64::RestoreFloatingPointRegister(size_t stack_index, uin
 }
 
 void CodeGeneratorMIPS64::DumpCoreRegister(std::ostream& stream, int reg) const {
-  stream << Mips64ManagedRegister::FromGpuRegister(GpuRegister(reg));
+  stream << GpuRegister(reg);
 }
 
 void CodeGeneratorMIPS64::DumpFloatingPointRegister(std::ostream& stream, int reg) const {
-  stream << Mips64ManagedRegister::FromFpuRegister(FpuRegister(reg));
+  stream << FpuRegister(reg);
 }
 
 void CodeGeneratorMIPS64::LoadCurrentMethod(GpuRegister current_method) {
