@@ -31,8 +31,6 @@ fi
 
 art="/data/local/tmp/system/bin/art"
 art_debugee="sh /data/local/tmp/system/bin/art"
-# We use Quick's image on target because optimizing's image is not compiled debuggable.
-image="-Ximage:/data/art-test/core.art"
 args=$@
 debuggee_args="-Xcompiler-option --compiler-backend=Optimizing -Xcompiler-option --debuggable"
 device_dir="--device-dir=/data/local/tmp"
