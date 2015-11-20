@@ -118,16 +118,25 @@ include $(art_path)/build/Android.common_test.mk
 include $(art_path)/build/Android.gtest.mk
 include $(art_path)/test/Android.run-test.mk
 
+TEST_ART_ADB_ROOT_AND_REMOUNT := \
+    (adb root && \
+     adb wait-for-device remount && \
+     ((adb shell touch /system/testfile && \
+       (adb shell rm /system/testfile || true)) || \
+      (adb disable-verity && \
+       adb reboot && \
+       adb wait-for-device root && \
+       adb wait-for-device remount)))
+
 # Sync test files to the target, depends upon all things that must be pushed to the target.
 .PHONY: test-art-target-sync
 ifeq ($(ART_TEST_ANDROID_ROOT),)
 test-art-target-sync: $(TEST_ART_TARGET_SYNC_DEPS)
-	adb root
-	adb wait-for-device remount
+	$(TEST_ART_ADB_ROOT_AND_REMOUNT)
 	adb sync
 else
 test-art-target-sync: $(TEST_ART_TARGET_SYNC_DEPS)
-	adb root
+	$(TEST_ART_ADB_ROOT_AND_REMOUNT)
 	adb wait-for-device push $(ANDROID_PRODUCT_OUT)/system $(ART_TEST_ANDROID_ROOT)
 	adb push $(ANDROID_PRODUCT_OUT)/data /data
 endif
@@ -362,8 +371,7 @@ oat-target: $(ART_TARGET_DEPENDENCIES) $(DEFAULT_DEX_PREOPT_INSTALLED_IMAGE) $(O
 
 .PHONY: oat-target-sync
 oat-target-sync: oat-target
-	adb root
-	adb wait-for-device remount
+	$(TEST_ART_ADB_ROOT_AND_REMOUNT)
 	adb sync
 
 ########################################################################
