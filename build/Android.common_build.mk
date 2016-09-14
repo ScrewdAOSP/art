@@ -112,7 +112,7 @@ define set-target-local-clang-vars
       endif)
 endef
 
-ART_TARGET_CLANG_CFLAGS :=
+ART_TARGET_CLANG_CFLAGS := -ffast-math
 ART_TARGET_CLANG_CFLAGS_arm :=
 ART_TARGET_CLANG_CFLAGS_arm64 :=
 ART_TARGET_CLANG_CFLAGS_mips :=
@@ -218,6 +218,8 @@ art_target_cflags := \
 # Base set of cflags used by host build only
 art_host_cflags := \
   $(foreach host_arch,$(strip $(ART_HOST_CODEGEN_ARCHS)), -DART_ENABLE_CODEGEN_$(host_arch))
+
+art_target_cflags += -ffast-math
 
 # Base set of asflags used by all things ART.
 art_asflags :=
